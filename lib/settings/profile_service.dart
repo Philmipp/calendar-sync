@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
+import '../calendar/calendar_service.dart';
 import '../sync/database_provider.dart';
 
 class SyncProfile {
@@ -13,6 +14,7 @@ class SyncProfile {
   final bool copyDescription;
   final bool copyLocation;
   final bool omitSourceTitle;
+  final int horizonDays;
 
   const SyncProfile({
     required this.id,
@@ -25,6 +27,7 @@ class SyncProfile {
     this.copyDescription = false,
     this.copyLocation = false,
     this.omitSourceTitle = false,
+    this.horizonDays = kDefaultHorizonDays,
   });
 
   SyncProfile copyWith({
@@ -37,6 +40,7 @@ class SyncProfile {
     bool? copyDescription,
     bool? copyLocation,
     bool? omitSourceTitle,
+    int? horizonDays,
   }) {
     return SyncProfile(
       id: id,
@@ -49,6 +53,7 @@ class SyncProfile {
       copyDescription: copyDescription ?? this.copyDescription,
       copyLocation: copyLocation ?? this.copyLocation,
       omitSourceTitle: omitSourceTitle ?? this.omitSourceTitle,
+      horizonDays: horizonDays ?? this.horizonDays,
     );
   }
 }
@@ -65,6 +70,7 @@ class ProfileService {
   static const _columnCopyDescription = 'copy_description';
   static const _columnCopyLocation = 'copy_location';
   static const _columnOmitSourceTitle = 'omit_source_title';
+  static const _columnHorizonDays = 'horizon_days';
 
   final DatabaseProvider _dbProvider;
 
@@ -82,6 +88,7 @@ class ProfileService {
     bool copyDescription = false,
     bool copyLocation = false,
     bool omitSourceTitle = false,
+    int horizonDays = kDefaultHorizonDays,
   }) async {
     final db = await database;
     final id = const Uuid().v4();
@@ -96,6 +103,7 @@ class ProfileService {
       _columnCopyDescription: copyDescription ? 1 : 0,
       _columnCopyLocation: copyLocation ? 1 : 0,
       _columnOmitSourceTitle: omitSourceTitle ? 1 : 0,
+      _columnHorizonDays: horizonDays,
     });
     return SyncProfile(
       id: id,
@@ -108,6 +116,7 @@ class ProfileService {
       copyDescription: copyDescription,
       copyLocation: copyLocation,
       omitSourceTitle: omitSourceTitle,
+      horizonDays: horizonDays,
     );
   }
 
@@ -125,6 +134,7 @@ class ProfileService {
         _columnCopyDescription: profile.copyDescription ? 1 : 0,
         _columnCopyLocation: profile.copyLocation ? 1 : 0,
         _columnOmitSourceTitle: profile.omitSourceTitle ? 1 : 0,
+        _columnHorizonDays: profile.horizonDays,
       },
       where: '$_columnId = ?',
       whereArgs: [profile.id],
@@ -242,6 +252,7 @@ class ProfileService {
       copyDescription: (row[_columnCopyDescription] as int?) == 1,
       copyLocation: (row[_columnCopyLocation] as int?) == 1,
       omitSourceTitle: (row[_columnOmitSourceTitle] as int?) == 1,
+      horizonDays: (row[_columnHorizonDays] as int?) ?? kDefaultHorizonDays,
     );
   }
 }

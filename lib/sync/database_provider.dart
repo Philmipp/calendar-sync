@@ -25,7 +25,7 @@ class DatabaseProvider {
     final path = join(dbPath, name);
     final db = await openDatabase(
       path,
-      version: 8,
+      version: 9,
       singleInstance: false,
       onConfigure: (db) async {
         await db.rawQuery('PRAGMA journal_mode=WAL');
@@ -67,7 +67,8 @@ class DatabaseProvider {
           enabled INTEGER NOT NULL DEFAULT 1,
           copy_description INTEGER NOT NULL DEFAULT 0,
           copy_location INTEGER NOT NULL DEFAULT 0,
-          omit_source_title INTEGER NOT NULL DEFAULT 0
+          omit_source_title INTEGER NOT NULL DEFAULT 0,
+          horizon_days INTEGER NOT NULL DEFAULT 30
           )
         ''');
         await db.execute('''
@@ -144,6 +145,9 @@ class DatabaseProvider {
         }
         if (oldVersion < 8) {
           await db.execute('ALTER TABLE sync_profiles ADD COLUMN omit_source_title INTEGER NOT NULL DEFAULT 0');
+        }
+        if (oldVersion < 9) {
+          await db.execute('ALTER TABLE sync_profiles ADD COLUMN horizon_days INTEGER NOT NULL DEFAULT 30');
         }
       },
     );

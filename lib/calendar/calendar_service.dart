@@ -1,6 +1,13 @@
 import 'package:flutter/services.dart';
 import 'package:device_calendar_plus/device_calendar_plus.dart';
 
+/// How far into the future events are read when a profile has no
+/// explicit horizon set. Matches the historical hard-coded value.
+const int kDefaultHorizonDays = 30;
+
+/// Horizons offered in the profile settings, in days.
+const List<int> kHorizonChoices = [30, 90, 180, 365, 730];
+
 class CalendarService {
   final DeviceCalendar _plugin = DeviceCalendar.instance;
   static const _channel = MethodChannel('calsync/calendar');
@@ -13,12 +20,17 @@ class CalendarService {
     }
   }
 
-  Future<List<Event>> listEvents(String calendarId) async {
+  /// Reads events from [calendarId], starting now and reaching
+  /// [horizonDays] days into the future.
+  Future<List<Event>> listEvents(
+    String calendarId, {
+    int horizonDays = kDefaultHorizonDays,
+  }) async {
     final now = DateTime.now();
     try {
       return await _plugin.listEvents(
         now,
-        now.add(const Duration(days: 30)),
+        now.add(Duration(days: horizonDays)),
         calendarIds: [calendarId],
       );
     } on DeviceCalendarException {

@@ -85,6 +85,7 @@ class SyncEngine {
     bool copyDescription = false,
     bool copyLocation = false,
     bool omitSourceTitle = false,
+    int horizonDays = kDefaultHorizonDays,
   }) async {
     final plan = await _classify(
       profileId: profileId,
@@ -93,6 +94,7 @@ class SyncEngine {
       syncEventName: syncEventName,
       copyDescription: copyDescription,
       omitSourceTitle: omitSourceTitle,
+      horizonDays: horizonDays,
     );
 
 
@@ -127,6 +129,7 @@ class SyncEngine {
     required String syncEventName,
     bool copyDescription = false,
     bool omitSourceTitle = false,
+    int horizonDays = kDefaultHorizonDays,
   }) async {
     return _classify(
       profileId: profileId,
@@ -135,6 +138,7 @@ class SyncEngine {
       syncEventName: syncEventName,
       copyDescription: copyDescription,
       omitSourceTitle: omitSourceTitle,
+      horizonDays: horizonDays,
     );
   }
 
@@ -196,6 +200,7 @@ class SyncEngine {
     required String syncEventName,
     bool copyDescription = false,
     bool omitSourceTitle = false,
+    int horizonDays = kDefaultHorizonDays,
   }) async {
     final toCreate = <ToCreateEntry>[];
     final toUpdate = <ToUpdateEntry>[];
@@ -204,7 +209,10 @@ class SyncEngine {
     final errors = <String>[];
     final processedIds = <String>{};
 
-    final sourceEvents = await _calendarService.listEvents(sourceCalendarId);
+    final sourceEvents = await _calendarService.listEvents(
+      sourceCalendarId,
+      horizonDays: horizonDays,
+    );
 
     final mappings = await _mappingDb.listMappingsForCalendar(
       profileId,
