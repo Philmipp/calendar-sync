@@ -45,6 +45,7 @@ class _ProfileConfigScreenState extends State<ProfileConfigScreen>
   String? _sourceCalendarId;
   String? _targetCalendarId;
   int _intervalMinutes = 60;
+  int _horizonDays = kDefaultHorizonDays;
   bool _syncEnabled = true;
   bool _copyDescription = false;
   bool _copyLocation = false;
@@ -95,6 +96,7 @@ class _ProfileConfigScreenState extends State<ProfileConfigScreen>
         _targetCalendarId = profile.targetCalendarId;
         _syncNameController.text = profile.eventName;
         _intervalMinutes = profile.intervalMinutes;
+        _horizonDays = profile.horizonDays;
         _syncEnabled = profile.enabled;
         _copyDescription = profile.copyDescription;
         _copyLocation = profile.copyLocation;
@@ -207,6 +209,7 @@ class _ProfileConfigScreenState extends State<ProfileConfigScreen>
           copyDescription: _copyDescription,
           copyLocation: _copyLocation,
           omitSourceTitle: _omitSourceTitle,
+          horizonDays: _horizonDays,
         ));
       }
     } else {
@@ -220,6 +223,7 @@ class _ProfileConfigScreenState extends State<ProfileConfigScreen>
         copyDescription: _copyDescription,
         copyLocation: _copyLocation,
         omitSourceTitle: _omitSourceTitle,
+        horizonDays: _horizonDays,
       );
     }
 
@@ -276,6 +280,18 @@ class _ProfileConfigScreenState extends State<ProfileConfigScreen>
     _nameController.dispose();
     _syncNameController.dispose();
     super.dispose();
+  }
+
+  String _horizonLabel(int days) {
+    if (days % 365 == 0) {
+      final years = days ~/ 365;
+      return years == 1 ? '1 year' : '$years years';
+    }
+    if (days % 30 == 0) {
+      final months = days ~/ 30;
+      return months == 1 ? '1 month' : '$months months';
+    }
+    return '$days days';
   }
 
   @override
@@ -484,6 +500,34 @@ class _ProfileConfigScreenState extends State<ProfileConfigScreen>
                           child: Text(
                             'Changes are detected within seconds. '
                             'The interval above is a fallback only.',
+                            style: hintStyle,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownMenu<int>(
+                          initialSelection: _horizonDays,
+                          label: const Text('Sync Window'),
+                          expandedInsets: EdgeInsets.zero,
+                          menuHeight: 240,
+                          dropdownMenuEntries: kHorizonChoices
+                              .map((days) => DropdownMenuEntry(
+                                    value: days,
+                                    label: _horizonLabel(days),
+                                  ))
+                              .toList(),
+                          onSelected: (val) {
+                            if (val != null) {
+                              setState(() => _horizonDays = val);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'How far ahead events are picked up. '
+                            'A longer window means more events to scan '
+                            'on every sync.',
                             style: hintStyle,
                           ),
                         ),

@@ -1,0 +1,46 @@
+name: Build APK
+
+# Prüft den Code und baut ein installierbares Release-APK.
+# Starten: Reiter "Actions" -> "Build APK" -> "Run workflow".
+# Das APK liegt danach unten am Lauf als Artefakt "calsync-apk".
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [horizon-setting, sync-window]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.0'
+          channel: stable
+          cache: true
+
+      - name: Dependencies
+        run: flutter pub get
+
+      # Findet Tippfehler und Typfehler, bevor der lange Build startet.
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: calsync-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

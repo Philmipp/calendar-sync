@@ -108,6 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       copyDescription: profile.copyDescription,
       copyLocation: profile.copyLocation,
       omitSourceTitle: profile.omitSourceTitle,
+      horizonDays: profile.horizonDays,
     );
 
 
