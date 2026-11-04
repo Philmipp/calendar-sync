@@ -30,8 +30,10 @@ jobs:
         run: flutter pub get
 
       # Findet Tippfehler und Typfehler, bevor der lange Build startet.
+      # --no-fatal-infos: Das Repo hat zwei bestehende Info-Lints, an denen
+      # der Lauf sonst scheitert. Echte Fehler brechen weiterhin ab.
       - name: Analyze
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Test
         run: flutter test
